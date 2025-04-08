@@ -1,5 +1,7 @@
+from typing import Annotated
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import Field
 
 from app.models.chat_models import ChatRequest, ChatResponse
 from app.services.llm_service import LLMService
@@ -37,7 +39,11 @@ async def chat_with_llm(request: ChatRequest, api_key: str = Depends(get_api_key
     """
     try:
         response = await llm_service.generate_response(
-            query=request.query, api_key=api_key, model=request.model
+            query=request.query,
+            api_key=api_key,
+            model=request.model,
+            temperature=request.temperature,
+            response_model=Annotated[str, Field(description="Response")],
         )
         return ChatResponse(response=response)
     except Exception as e:

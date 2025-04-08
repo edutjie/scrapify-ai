@@ -8,6 +8,10 @@ class ChatRequest(BaseModel):
         None,
         description="The OpenAI model to use (defaults to gpt-4o if not specified)",
     )
+    temperature: Optional[float] = Field(
+        0.7,
+        description="Sampling temperature for the LLM response (default is 0.7)",
+    )
 
 
 class ChatResponse(BaseModel):
