@@ -8,9 +8,13 @@ class Settings(BaseSettings):
 
     # OpenAI API settings
     openai_default_model: str = "gpt-4o"  # Default model
+    
+    # Serper API settings
+    serper_api_key: str = ""
 
     class Config:
         env_file = ".env"
+        extra = "ignore"  # Optional: allows extra fields without validation errors
 
 
 @lru_cache()

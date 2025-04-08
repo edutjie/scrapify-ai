@@ -1,18 +1,22 @@
-from pydantic import BaseModel, Field
 from typing import Optional
+from pydantic import BaseModel, Field
 
 
-class ChatRequest(BaseModel):
+class WebSearchRequest(BaseModel):
     query: str = Field(..., description="The user's query to process")
     model: Optional[str] = Field(
         default="gpt-4o",
         description="The OpenAI model to use (defaults to gpt-4o if not specified)",
     )
     temperature: Optional[float] = Field(
-        0.5,
+        0,
         description="Sampling temperature for the LLM response (default is 0.5)",
+    )
+    search_instructions: Optional[str] = Field(
+        None,
+        description="Optional specific instructions for the web search (e.g., time range, site restrictions)",
     )
 
 
-class ChatResponse(BaseModel):
+class WebSearchResponse(BaseModel):
     response: str = Field(..., description="The LLM's response to the query")
