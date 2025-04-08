@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import Field
 
 from app.models.chat_models import ChatRequest, ChatResponse
+from app.models.person_lookup_models import PersonLookupRequest, PersonLookupResponse
 from app.models.scrape_models import ScrapeRequest, ScrapeResponse
 from app.models.websearch_models import WebSearchRequest, WebSearchResponse
 from app.models.company_models import (
@@ -78,6 +79,27 @@ async def run_agent(request: WebSearchRequest, api_key: str = Depends(get_api_ke
             temperature=request.temperature,
         )
         return WebSearchResponse(response=response)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/person-lookup", response_model=PersonLookupResponse)
+async def run_person_lookup_agent(
+    request: PersonLookupRequest, api_key: str = Depends(get_api_key)
+):
+    """
+    Run a ReAct agent with Google search and web scraping capabilities for person lookup.
+    Requires an API key in the X-API-Key header.
+    """
+    try:
+        response = await agent_service.run_person_lookup(
+            company_url=request.company_url,
+            role=request.role,
+            api_key=api_key,
+            model=request.model,
+            temperature=request.temperature,
+        )
+        return PersonLookupResponse(response=response)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

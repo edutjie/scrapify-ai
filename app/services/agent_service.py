@@ -102,8 +102,6 @@ class AgentService:
         )
         print(f"Running agent with query: {query}")
         response = await agent.ainvoke({"messages": [("user", query)]})
-        for message in response["messages"]:
-            print(message)
         return response["messages"][-1].content
 
     async def run_scrape_agent(
@@ -121,6 +119,19 @@ class AgentService:
         )
         print(f"Running scrape agent with query: {query} on website: {web_url}")
         response = await agent.ainvoke({"messages": [("user", query)]})
-        for message in response["messages"]:
-            print(message)
         return response["messages"][-1].content
+
+    async def run_person_lookup(
+        self,
+        company_url: str,
+        role: str,
+        api_key: str,
+        model: str = "gpt-4o",
+        temperature: float = 0.5,
+    ) -> str:
+        """Run the agent with a user query"""
+        query = f"Find people who work at {company_url} with the role of {role}."
+        search_instructions = f"Search for people who work at a specific company with the a specific role and return only their LinkedIn URLs, no pre-amble.  For example, if you found the closest person is Eduardus Tjitrahardja with LinkedIn URL https://id.linkedin.com/in/edutjie, then just return https://id.linkedin.com/in/edutjie. Return the closest person's LinkedIn URL if you aren't 100% confident"
+        return await self.run_websearch_agent(
+            query, api_key, model, temperature, search_instructions
+        )
