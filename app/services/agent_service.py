@@ -43,7 +43,13 @@ class AgentService:
         You may need to perform multiple searches and scrapes to gather sufficient information.
         Always analyze the information you get critically and provide a coherent, comprehensive answer.
         
-        Remember to cite your sources in your final answer.{"\n\nAdditional Instruction:\n" + search_instructions if search_instructions else ""}"""
+        Remember to cite your sources in your final answer."""
+
+        if search_instructions:
+            system_prompt += f"""
+            
+            Additional Instruction:
+            {search_instructions}"""
 
         self.agent = create_react_agent(llm, tools, prompt=system_prompt)
         return self.agent
@@ -83,7 +89,13 @@ class AgentService:
         6. Prioritize depth over breadth - focus on the most promising paths
         
         Always provide a comprehensive answer based on the scraped content and cite the specific URLs 
-        you used to gather information.{"\n\nAdditional Instruction:\n" + search_instructions if search_instructions else ""}"""
+        you used to gather information."""
+
+        if search_instructions:
+            system_prompt += f"""
+            
+            Additional Instruction:
+            {search_instructions}"""
 
         self.agent = create_react_agent(llm, tools, prompt=system_prompt)
         return self.agent
