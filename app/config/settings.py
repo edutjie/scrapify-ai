@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     
     # Serper API settings
     serper_api_key: str = ""
+    proxycurl_api_key: str = ""
 
     class Config:
         env_file = ".env"

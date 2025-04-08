@@ -14,7 +14,9 @@ class ScrapeRequest(BaseModel):
     )
     temperature: Optional[float] = Field(
         0,
-        description="Sampling temperature for the LLM response (default is 0.5)",
+        description="Sampling temperature for the LLM response (default is 0)",
+        ge=0,
+        le=1,
     )
 
 

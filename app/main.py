@@ -6,8 +6,14 @@ from pydantic import Field
 from app.models.chat_models import ChatRequest, ChatResponse
 from app.models.scrape_models import ScrapeRequest, ScrapeResponse
 from app.models.websearch_models import WebSearchRequest, WebSearchResponse
+from app.models.company_models import (
+    CompanyProfile,
+    CompanyScrapeRequest,
+    CompanyScrapeResponse,
+)
 from app.services.llm_service import LLMService
 from app.services.agent_service import AgentService
+from app.services.linkedin_scraper_service import LinkedInScraperService
 
 app = FastAPI(
     title="Scrapify AI",
@@ -28,6 +34,8 @@ app.add_middleware(
 llm_service = LLMService()
 # Initialize agent service
 agent_service = AgentService()
+# Initialize linkedin scraper service
+linkedin_scraper_service = LinkedInScraperService()
 
 
 async def get_api_key(x_api_key: str = Header(...)):
@@ -89,6 +97,41 @@ async def scrape_agent(request: ScrapeRequest, api_key: str = Depends(get_api_ke
             temperature=request.temperature,
         )
         return ScrapeResponse(response=response)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/company", response_model=CompanyScrapeResponse)
+async def scrape_company(request: CompanyScrapeRequest):
+    """
+    Scrapes the company LinkedIn page to pull all information found on the page
+    and returns a summary of key company information.
+    Requires an API key in the X-API-Key header.
+    """
+    try:
+        # Scrape the LinkedIn page
+        company_data = await linkedin_scraper_service.scrape_company(
+            linkedin_url=request.linkedin_url
+        )
+
+        company_profile = CompanyProfile(
+            name=company_data["name"],
+            linkedin_internal_id=company_data["linkedin_internal_id"],
+            website=company_data["website"],
+            industry=company_data["industry"],
+            company_size=" - ".join([str(cs) for cs in company_data["company_size"]]),
+            company_size_on_linkedin=company_data["company_size_on_linkedin"],
+            hq_location=company_data["hq"]["city"]
+            + ", "
+            + company_data["hq"]["state"]
+            + ", "
+            + company_data["hq"]["country"],
+            company_type=company_data["company_type"],
+            founded_year=company_data["founded_year"],
+            tagline=company_data["tagline"],
+        )
+
+        return CompanyScrapeResponse(response=company_profile)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
